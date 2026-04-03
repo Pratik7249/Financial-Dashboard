@@ -6,13 +6,20 @@ import {
   TableRow,
   Paper,
   Typography,
+  Button,
 } from "@mui/material";
 import { useAppContext } from "../context/AppContext";
 
 function CustomTable() {
-  const { transactions, filters } = useAppContext();
+  const { transactions, filters, role, setTransactions } = useAppContext();
 
-  // 🔹 Apply Filters
+  // 🔹 Delete Handler (Admin only)
+  const handleDelete = (id) => {
+    const updated = transactions.filter((t) => t.id !== id);
+    setTransactions(updated);
+  };
+
+  // 🔹 Filters
   const filteredData = transactions.filter((t) => {
     return (
       (filters.search === "" ||
@@ -37,6 +44,9 @@ function CustomTable() {
             <TableCell>Category</TableCell>
             <TableCell>Type</TableCell>
             <TableCell>Amount</TableCell>
+
+            {/* 👑 Only for Admin */}
+            {role === "admin" && <TableCell>Actions</TableCell>}
           </TableRow>
         </TableHead>
 
@@ -49,11 +59,27 @@ function CustomTable() {
                 <TableCell>{t.category}</TableCell>
                 <TableCell>{t.type}</TableCell>
                 <TableCell>₹ {t.amount}</TableCell>
+
+                {/* 👑 Admin Actions */}
+                {role === "admin" && (
+                  <TableCell>
+                    <Button
+                      color="error"
+                      size="small"
+                      onClick={() => handleDelete(t.id)}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                )}
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={5} align="center">
+              <TableCell
+                colSpan={role === "admin" ? 6 : 5}
+                align="center"
+              >
                 No transactions found 😕
               </TableCell>
             </TableRow>
