@@ -41,18 +41,18 @@ function Charts() {
   }));
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ p: 2 ,maxWidth: "1200px", margin: "auto"}}>
       <Grid container spacing={2}>
 
         {/* Line Chart */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <Card elevation={3}>
             <CardContent>
               <Typography variant="subtitle1">
                 Transaction Trend
               </Typography>
 
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width={400} height={350}>
                 <LineChart data={lineData}>
                   <XAxis dataKey="date" />
                   <YAxis />
@@ -66,14 +66,14 @@ function Charts() {
         </Grid>
 
         {/* Pie Chart */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={3}>
+        <Grid item xs={12} md={4}>
+          <Card elevation={3} >
             <CardContent>
               <Typography variant="subtitle1">
                 Spending by Category
               </Typography>
 
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer height={350} width={400}>
                 <PieChart>
                   <Pie
                     data={pieData}

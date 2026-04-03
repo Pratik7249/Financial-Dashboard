@@ -5,38 +5,60 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
+  Typography,
 } from "@mui/material";
+import { useAppContext } from "../context/AppContext";
 
 function CustomTable() {
+  const { transactions, filters } = useAppContext();
+
+  // 🔹 Apply Filters
+  const filteredData = transactions.filter((t) => {
+    return (
+      (filters.search === "" ||
+        t.id.toLowerCase().includes(filters.search.toLowerCase()) ||
+        t.category.toLowerCase().includes(filters.search.toLowerCase())) &&
+      (filters.category === "" || t.category === filters.category) &&
+      (filters.type === "" || t.type === filters.type)
+    );
+  });
+
   return (
-    <Paper sx={{ m: 2 }}>
+    <Paper sx={{ m: 2, p: 2 }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Transactions
+      </Typography>
+
       <Table>
-        
         <TableHead>
           <TableRow>
             <TableCell>ID</TableCell>
-            <TableCell>Amount</TableCell>
-            <TableCell>Status</TableCell>
             <TableCell>Date</TableCell>
-            <TableCell>Actions</TableCell>
+            <TableCell>Category</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell>Amount</TableCell>
           </TableRow>
         </TableHead>
 
         <TableBody>
-          <TableRow>
-            <TableCell>1</TableCell>
-            <TableCell>₹500</TableCell>
-            <TableCell>Success</TableCell>
-            <TableCell>2026-04-02</TableCell>
-            <TableCell>
-              <Button color="error" variant="contained" size="small">
-                Delete
-              </Button>
-            </TableCell>
-          </TableRow>
+          {filteredData.length > 0 ? (
+            filteredData.map((t) => (
+              <TableRow key={t.id}>
+                <TableCell>{t.id}</TableCell>
+                <TableCell>{t.date}</TableCell>
+                <TableCell>{t.category}</TableCell>
+                <TableCell>{t.type}</TableCell>
+                <TableCell>₹ {t.amount}</TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={5} align="center">
+                No transactions found 😕
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
-
       </Table>
     </Paper>
   );
