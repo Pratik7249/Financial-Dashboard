@@ -41,7 +41,7 @@ function Charts() {
   }));
 
   return (
-    <Box sx={{ p: 2 ,maxWidth: "1200px", margin: "auto"}}>
+    <Box sx={{ p: 0 ,maxWidth: "1200px", margin: "auto"}}>
       <Grid container spacing={2}>
 
         {/* Line Chart */}

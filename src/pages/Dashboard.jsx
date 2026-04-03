@@ -1,4 +1,4 @@
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Container } from "@mui/material";
 import Navbar from "../components/Navbar";
 import Filters from "../components/Filters";
 import CustomTable from "../components/Table";
@@ -7,26 +7,37 @@ import Charts from "../components/Charts";
 
 function Dashboard() {
   return (
-    <Box>
-
+    <Box sx={{ background: "#f5f7fb", minHeight: "100vh" }}>
+      
       <Navbar />
 
-      {/* Overview Cards */}
-      <OverviewCards />
-      <Charts />
+      {/* Main Container */}
+      <Container maxWidth="lg" sx={{ mt: 3 }}>
 
-      {/* Main Layout */}
-      <Grid container>
-        
-        <Grid item xs={12} md={3}>
-          <Filters />
+        {/* Overview Cards */}
+        <OverviewCards />
+
+        {/* Charts Section */}
+        <Box sx={{ mt: 3 }}>
+          <Charts />
+        </Box>
+
+        {/* Bottom Section */}
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          
+          {/* Filters */}
+          <Grid item xs={12} md={3}>
+            <Filters />
+          </Grid>
+
+          {/* Table */}
+          <Grid item xs={12} md={9}>
+            <CustomTable />
+          </Grid>
+
         </Grid>
 
-        <Grid item xs={12} md={9}>
-          <CustomTable />
-        </Grid>
-
-      </Grid>
+      </Container>
 
     </Box>
   );
