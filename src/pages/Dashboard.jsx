@@ -1,10 +1,15 @@
-import { Box, Container } from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
 import CustomTable from "../components/Table";
 import OverviewCards from "../components/OverviewCards";
 import Charts from "../components/Charts";
 import Insights from "../components/Insights";
+import { useAppContext } from "../context/AppContext";
 
 function Dashboard() {
+  const { loading } = useAppContext();
+  if (loading) {
+    return <Typography variant="h6" align="center" sx={{ mt: 5 }}>quickly loading your data...</Typography>;
+  }
   return (
     <Box sx={{ minHeight: "100vh" }}>
 

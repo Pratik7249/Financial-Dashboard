@@ -1,22 +1,31 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState,useEffect } from "react";
 import transactionsData from "../data/mockData";
+import { fetchTransactions } from "../services/api";
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  
-  // 🔹 Transactions State
-  const [transactions, setTransactions] = useState(transactionsData);
+  const [transactions, setTransactions] = useState([]);
+  // Transactions State
+  // const [transactions, setTransactions] = useState(transactionsData);
 
-  // 🔹 Role State
-  const [role, setRole] = useState("admin"); // admin / viewer
+  // Role State
+  const [role, setRole] = useState("admin");
 
-  // 🔹 Filters State
+  // Filters State
   const [filters, setFilters] = useState({
     search: "",
     category: "",
     type: "",
   });
+   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTransactions().then((data) => {
+      setTransactions(data);
+      setLoading(false);
+    });
+  }, []);
 
   return (
     <AppContext.Provider
