@@ -82,14 +82,12 @@ function Charts() {
               />
             </Box>
 
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width={750} height={280}>
               <LineChart data={lineData}>
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
                 <Line type="monotone" dataKey="amount" stroke="#1976d2" />
-
-                <Brush dataKey="date" height={20} />
               </LineChart>
             </ResponsiveContainer>
 
@@ -105,7 +103,7 @@ function Charts() {
               Spending by Category
             </Typography>
 
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width={350} height={280}>
               <PieChart>
                 <Pie
                   data={pieData}
