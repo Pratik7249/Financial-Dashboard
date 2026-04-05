@@ -11,10 +11,11 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useThemeContext } from "../context/ThemeContext";
 
 export default function Sidebar({ open, setOpen }) {
   const navigate = useNavigate();
-  const [theme, setTheme] = useState("system");
+  const { mode, setMode } = useThemeContext();
 
   const handleClick = (path) => {
     navigate(path);
@@ -48,10 +49,9 @@ export default function Sidebar({ open, setOpen }) {
         <Select
           fullWidth
           size="small"
-          value={theme}
-          onChange={(e) => setTheme(e.target.value)}
+          value={mode}
+          onChange={(e) => setMode(e.target.value)}
         >
-          <MenuItem value="system">System</MenuItem>
           <MenuItem value="light">Light</MenuItem>
           <MenuItem value="dark">Dark</MenuItem>
         </Select>

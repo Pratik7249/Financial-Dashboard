@@ -8,16 +8,35 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
+  Brush,
 } from "recharts";
-import { Box, Grid, Card, CardContent, Typography } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+} from "@mui/material";
 import { useAppContext } from "../context/AppContext";
+import { useState } from "react";
 
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f7f"];
 
 function Charts() {
   const { transactions } = useAppContext();
 
-  const lineData = [...transactions]
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const filtered = transactions.filter((t) => {
+    return (
+      (!startDate || t.date >= startDate) &&
+      (!endDate || t.date <= endDate)
+    );
+  });
+
+  const lineData = [...filtered]
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .map((t) => ({
       date: t.date,
@@ -25,8 +44,7 @@ function Charts() {
     }));
 
   const categoryMap = {};
-
-  transactions.forEach((t) => {
+  filtered.forEach((t) => {
     if (t.type === "expense") {
       categoryMap[t.category] =
         (categoryMap[t.category] || 0) + t.amount;
@@ -42,18 +60,36 @@ function Charts() {
     <Grid container spacing={2}>
 
       <Grid item xs={12} md={6}>
-        <Card elevation={3}>
+        <Card>
           <CardContent>
-            <Typography variant="subtitle1">
+
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
               Transaction Trend
             </Typography>
 
-            <ResponsiveContainer width={350} height={280}>
+            <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+              <TextField
+                type="date"
+                size="small"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+              <TextField
+                type="date"
+                size="small"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </Box>
+
+            <ResponsiveContainer width="100%" height={280}>
               <LineChart data={lineData}>
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
                 <Line type="monotone" dataKey="amount" stroke="#1976d2" />
+
+                <Brush dataKey="date" height={20} />
               </LineChart>
             </ResponsiveContainer>
 
@@ -62,19 +98,20 @@ function Charts() {
       </Grid>
 
       <Grid item xs={12} md={6}>
-        <Card elevation={3}>
+        <Card>
           <CardContent>
+
             <Typography variant="subtitle1">
               Spending by Category
             </Typography>
 
-            <ResponsiveContainer width={350} height={280}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
                   data={pieData}
                   dataKey="value"
                   nameKey="name"
-                  outerRadius={80}
+                  outerRadius={90}
                   label
                 >
                   {pieData.map((entry, index) => (

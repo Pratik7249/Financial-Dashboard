@@ -5,25 +5,16 @@ import CssBaseline from "@mui/material/CssBaseline";
 const ThemeContext = createContext();
 
 export const ThemeProviderCustom = ({ children }) => {
-  const [mode, setMode] = useState("system");
-
-  const themeMode = useMemo(() => {
-    if (mode === "system") {
-      return window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-    }
-    return mode;
-  }, [mode]);
+  const [mode, setMode] = useState("light");
 
   const theme = useMemo(
     () =>
       createTheme({
         palette: {
-          mode: themeMode,
+          mode: mode,
         },
       }),
-    [themeMode]
+    [mode]
   );
 
   return (
