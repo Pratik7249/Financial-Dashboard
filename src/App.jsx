@@ -1,9 +1,17 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
+import InsightsPage from "./pages/InsightsPage";
+import Layout from "./components/Layout";
 
-function App() {
+export default function App() {
   return (
-    <Dashboard />
+    // <BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/insights" element={<InsightsPage />} />
+        </Routes>
+      </Layout>
+    // </BrowserRouter>
   );
 }
-
-export default App;

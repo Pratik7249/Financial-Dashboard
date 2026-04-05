@@ -82,16 +82,16 @@ function CustomTable() {
     role === "admin"
       ? {
           id: "18%",
-          date: "22%",
-          category: "20%",
-          type: "15%",
-          amount: "13%",
-          actions: "12%",
+          date: "20%",
+          category: "14%",
+          type: "18%",
+          amount: "16%",
+          actions: "17%",
         }
       : {
           id: "20%",
-          date: "25%",
-          category: "25%",
+          date: "20%",
+          category: "20%",
           type: "15%",
           amount: "15%",
         };

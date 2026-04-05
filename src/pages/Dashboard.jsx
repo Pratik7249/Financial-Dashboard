@@ -1,30 +1,25 @@
 import { Box, Container } from "@mui/material";
-import Navbar from "../components/Navbar";
 import CustomTable from "../components/Table";
 import OverviewCards from "../components/OverviewCards";
 import Charts from "../components/Charts";
 import Insights from "../components/Insights";
-import Grid from "@mui/material/Grid";
 
 function Dashboard() {
   return (
-    <Box sx={{ background: "#f5f7fb", minHeight: "100vh" }}>
-
-      <Navbar />
+    <Box sx={{ minHeight: "100vh" }}>
 
       <Container maxWidth="xl" sx={{ mt: 3 }}>
         <Box
           sx={{
             display: "flex",
             gap: 2,
-            alignItems: "flex-start",
+            alignItems: "stretch",
             flexDirection: { xs: "column", md: "row" },
           }}
         >
           <Box
             sx={{
-              flex: "0 0 58%",
-              minWidth: 0,
+              flex: { md: "0 0 58%" },
               display: "flex",
               flexDirection: "column",
               gap: 2,
@@ -32,28 +27,35 @@ function Dashboard() {
           >
             <Charts />
 
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Box sx={{ flex: 7, minWidth: 0 }}>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                flexDirection: { xs: "column", sm: "row" },
+              }}
+            >
+              <Box sx={{ flex: 6 }}>
                 <OverviewCards />
               </Box>
-              <Box sx={{ flex: 6, minWidth: 0 }}>
+
+              <Box sx={{ flex: 5 }}>
                 <Insights />
               </Box>
             </Box>
-
           </Box>
+
           <Box
             sx={{
-              flex: "0 0 42%",
-              minWidth: 0,
-              overflow: "hidden",
+              flex: { md: "0 0 42%" },
+              display: "flex",
             }}
           >
-            <CustomTable />
+            <Box sx={{ flexGrow: 1 }}>
+              <CustomTable />
+            </Box>
           </Box>
 
         </Box>
-
       </Container>
 
     </Box>
