@@ -1,68 +1,56 @@
-import { Box, Container, Typography } from "@mui/material";
-import CustomTable from "../components/Table";
-import OverviewCards from "../components/OverviewCards";
-import Charts from "../components/Charts";
-import Insights from "../components/Insights";
-import { useAppContext } from "../context/AppContext";
+import { Box, Container, Divider, Typography } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Navbar from "../components/Navbar";
+import Filters from "../components/Filters";
+import SummaryCards from "../components/SummaryCards";
+import ChartsSection from "../components/ChartsSection";
+import InsightsPanel from "../components/InsightsPanel";
+import TransactionTable from "../components/TransactionTable";
 
 function Dashboard() {
-  const { loading } = useAppContext();
-  if (loading) {
-    return <Typography variant="h6" align="center" sx={{ mt: 5 }}>quickly loading your data...</Typography>;
-  }
   return (
-    <Box sx={{ minHeight: "100vh" }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
+      <Navbar />
+      <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3 } }}>
+        <Typography variant="h5" fontWeight={700} gutterBottom>
+          Overview
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          Track balances, spending, and activity. Switch role to compare viewer vs admin capabilities.
+        </Typography>
 
-      <Container maxWidth="xl" sx={{ mt: 3 }}>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            alignItems: "stretch",
-            flexDirection: { xs: "column", md: "row" },
-          }}
-        >
-          <Box
-            sx={{
-              flex: { md: "0 0 58%" },
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            <Charts />
+        <SummaryCards />
 
+        <Box sx={{ mt: 3 }}>
+          <ChartsSection />
+        </Box>
+
+        <Box sx={{ mt: 3 }}>
+          <InsightsPanel />
+        </Box>
+
+        <Divider sx={{ my: 4 }} />
+
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Box
               sx={{
-                display: "flex",
-                gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
+                position: { md: "sticky" },
+                top: { md: 16 },
+                bgcolor: "background.paper",
+                borderRadius: 2,
+                border: 1,
+                borderColor: "divider",
               }}
             >
-              <Box sx={{ flex: 6 }}>
-                <OverviewCards />
-              </Box>
-
-              <Box sx={{ flex: 5 }}>
-                <Insights />
-              </Box>
+              <Filters />
             </Box>
-          </Box>
-
-          <Box
-            sx={{
-              flex: { md: "0 0 42%" },
-              display: "flex",
-            }}
-          >
-            <Box sx={{ flexGrow: 1 }}>
-              <CustomTable />
-            </Box>
-          </Box>
-
-        </Box>
+          </Grid>
+          <Grid size={{ xs: 12, md: 9 }}>
+            <TransactionTable />
+          </Grid>
+        </Grid>
       </Container>
-
     </Box>
   );
 }

@@ -1,88 +1,76 @@
-import { Box, Grid, Card, CardContent, Typography } from "@mui/material";
 import { useAppContext } from "../context/AppContext";
 
-function Insights() {
+export default function Insights() {
   const { transactions } = useAppContext();
 
-  // 🔹 Expense transactions only
-  const expenses = transactions.filter((t) => t.type === "expense");
+  const expenses = transactions.filter(t => t.type === "expense");
+  const totalIncome = transactions.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
+  const totalExpense = expenses.reduce((s, t) => s + t.amount, 0);
 
-  // 🏆 Highest Spending Category
   const categoryMap = {};
+  expenses.forEach(t => { categoryMap[t.category] = (categoryMap[t.category] || 0) + t.amount; });
 
-  expenses.forEach((t) => {
-    categoryMap[t.category] =
-      (categoryMap[t.category] || 0) + t.amount;
-  });
-
-  let highestCategory = "N/A";
-  let maxAmount = 0;
-
+  let highestCategory = "N/A", maxAmount = 0;
   for (let cat in categoryMap) {
-    if (categoryMap[cat] > maxAmount) {
-      maxAmount = categoryMap[cat];
-      highestCategory = cat;
-    }
+    if (categoryMap[cat] > maxAmount) { maxAmount = categoryMap[cat]; highestCategory = cat; }
   }
 
-  // 📊 Income vs Expense
-  const totalIncome = transactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const percent = totalExpense > 0 ? ((maxAmount / totalExpense) * 100).toFixed(0) : 0;
+  const savingsRate = totalIncome > 0 ? (((totalIncome - totalExpense) / totalIncome) * 100).toFixed(0) : 0;
+  const isHealthy = totalExpense <= totalIncome;
 
-  const totalExpense = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  // 🔍 Smart Financial Observation
-
-  let observation = "";
-  let suggestion = "";
-  let suggestion2 = "";
-  const percent = ((maxAmount / totalExpense) * 100).toFixed(0);
-
-  if (totalExpense > totalIncome) {
-    observation = "Expenses are higher than income ⚠️";
-  } else {
-    observation = "You are managing your finances well 💰";
-  }
-
-  // Suggestion based on highest category
-  if (highestCategory !== "N/A") {
-    suggestion = `${highestCategory} accounts for ${percent}% of your spending.`;
-    suggestion2 = `Try to reduce unnecessary expenses in ${highestCategory} to save more.`;
-  }
+  const insights = [
+    {
+      emoji: isHealthy ? "✅" : "⚠️",
+      title: "Financial Health",
+      text: isHealthy ? "Expenses are within income — great management!" : "Expenses exceed income — review your spending.",
+      color: isHealthy ? "var(--success)" : "var(--danger)",
+      bg: isHealthy ? "var(--success-bg)" : "var(--danger-bg)",
+    },
+    {
+      emoji: "📊",
+      title: "Top Spending Category",
+      text: highestCategory !== "N/A" ? `${highestCategory} takes ${percent}% of your total expenses.` : "No expense data.",
+      color: "var(--warning)",
+      bg: "var(--warning-bg)",
+    },
+    {
+      emoji: "💵",
+      title: "Savings Rate",
+      text: `You're saving ${savingsRate}% of your income this period.`,
+      color: savingsRate > 20 ? "var(--success)" : "var(--accent)",
+      bg: savingsRate > 20 ? "var(--success-bg)" : "var(--accent-bg)",
+    },
+  ];
 
   return (
-    <Box sx={{ mt: 3 }}>
-      <Grid container spacing={2}>
+    <div style={{
+      background: "var(--bg-surface)",
+      border: "1px solid var(--border)",
+      borderRadius: "var(--radius-lg)",
+      padding: "20px",
+      boxShadow: "var(--shadow-sm)",
+      height: "100%",
+    }}>
+      <h3 style={{ fontSize: "14px", fontWeight: 700, marginBottom: "16px", color: "var(--text-primary)" }}>
+        Financial Insights
+      </h3>
 
-        {/* Highest Spending */}
-        {/* Observation */}
-        <Grid item xs={12} md={4}>
-          <Card elevation={3}>
-            <CardContent>
-              <Typography variant="subtitle2">
-                Financial Insight
-              </Typography>
-
-              <Typography
-                variant="body1"
-                color={totalExpense > totalIncome ? "error" : "green"}
-              >
-                {observation}
-              </Typography>
-
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                {suggestion}<br />{suggestion2}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-      </Grid>
-    </Box>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {insights.map((ins, i) => (
+          <div key={i} style={{
+            display: "flex", alignItems: "flex-start", gap: "12px",
+            padding: "12px", borderRadius: "var(--radius-md)",
+            background: ins.bg, border: `1px solid ${ins.color}22`,
+          }}>
+            <span style={{ fontSize: "18px", lineHeight: 1, marginTop: "1px" }}>{ins.emoji}</span>
+            <div>
+              <div style={{ fontSize: "12px", fontWeight: 600, color: ins.color, marginBottom: "2px" }}>{ins.title}</div>
+              <div style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.5 }}>{ins.text}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
-
-export default Insights;

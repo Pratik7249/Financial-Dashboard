@@ -4,74 +4,99 @@ import {
   Typography,
   Select,
   MenuItem,
-  Box,
+  FormControl,
+  InputLabel,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
   IconButton,
+  Menu,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import HomeIcon from "@mui/icons-material/Home";
-import { useNavigate } from "react-router-dom";
-import { useAppContext } from "../context/AppContext";
+import DownloadIcon from "@mui/icons-material/Download";
+import { useState } from "react";
+import { useAppContext } from "../context/useAppContext";
 
-function Navbar({ setOpen }) {
-  const { role, setRole } = useAppContext();
-  const navigate = useNavigate();
+function Navbar() {
+  const {
+    role,
+    setRole,
+    colorMode,
+    setColorMode,
+    isAdmin,
+    exportCsv,
+    exportJson,
+  } = useAppContext();
+
+  const [exportAnchor, setExportAnchor] = useState(null);
 
   return (
-    <AppBar
-      position="sticky"
-      elevation={2}
-      sx={{
-        backgroundColor: (theme) =>
-          theme.palette.mode === "dark" ? "#1e1e1e" : "#1976d2",
-      }}
-    >
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+    <AppBar position="sticky" elevation={0} color="default" sx={{ borderBottom: 1, borderColor: "divider" }}>
+      <Toolbar sx={{ gap: 2, flexWrap: "wrap", py: 1 }}>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 700 }}>
+          Finance Dashboard
+        </Typography>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <IconButton color="inherit" onClick={() => setOpen(true)}>
-            <MenuIcon />
-          </IconButton>
+        <ToggleButtonGroup
+          size="small"
+          exclusive
+          value={colorMode}
+          onChange={(_, v) => v && setColorMode(v)}
+          aria-label="theme"
+        >
+          <ToggleButton value="light">Light</ToggleButton>
+          <ToggleButton value="dark">Dark</ToggleButton>
+        </ToggleButtonGroup>
 
-          <Typography variant="h6">
-            Financial Dashboard
-          </Typography>
-        </Box>
+        <FormControl size="small" sx={{ minWidth: 140 }}>
+          <InputLabel id="role-label">Role</InputLabel>
+          <Select
+            labelId="role-label"
+            label="Role"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+          >
+            <MenuItem value="viewer">Viewer (read-only)</MenuItem>
+            <MenuItem value="admin">Admin (edit data)</MenuItem>
+          </Select>
+        </FormControl>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          
-          <IconButton color="inherit" onClick={() => navigate("/")}>
-            <HomeIcon />
-          </IconButton>
-
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Typography variant="body2" sx={{ mr: 1 }}>
-              Role:
-            </Typography>
-
-            <Select
-              size="small"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              sx={{
-                minWidth: 100,
-                backgroundColor: (theme) =>
-                  theme.palette.mode === "dark"
-                    ? "#2c2c2c"
-                    : "#ffffff",
-                color: (theme) =>
-                  theme.palette.mode === "dark"
-                    ? "#ffffff"
-                    : "#000000",
-                borderRadius: 1,
-              }}
+        {isAdmin && (
+          <>
+            <Tooltip title="Export data">
+              <IconButton
+                color="inherit"
+                onClick={(e) => setExportAnchor(e.currentTarget)}
+                aria-label="export"
+              >
+                <DownloadIcon />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              anchorEl={exportAnchor}
+              open={Boolean(exportAnchor)}
+              onClose={() => setExportAnchor(null)}
             >
-              <MenuItem value="admin">Admin</MenuItem>
-              <MenuItem value="viewer">User</MenuItem>
-            </Select>
-          </Box>
-
-        </Box>
-
+              <MenuItem
+                onClick={() => {
+                  exportCsv();
+                  setExportAnchor(null);
+                }}
+              >
+                <ListItemText primary="Download CSV" />
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  exportJson();
+                  setExportAnchor(null);
+                }}
+              >
+                <ListItemText primary="Download JSON" />
+              </MenuItem>
+            </Menu>
+          </>
+        )}
       </Toolbar>
     </AppBar>
   );

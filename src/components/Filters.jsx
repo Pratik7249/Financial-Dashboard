@@ -5,78 +5,99 @@ import {
   MenuItem,
   TextField,
   Button,
+  Stack,
+  InputAdornment,
 } from "@mui/material";
-import { useAppContext } from "../context/AppContext";
+import SearchIcon from "@mui/icons-material/Search";
+import { useAppContext } from "../context/useAppContext";
 
 function Filters() {
-  const { filters, setFilters } = useAppContext();
+  const { filters, setFilters, resetFilters, categories } = useAppContext();
 
-  const handleChange = (field, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleReset = () => {
-    setFilters({
-      search: "",
-      category: "",
-      type: "",
-    });
-  };
+  const set = (key) => (e) =>
+    setFilters((f) => ({ ...f, [key]: e.target.value }));
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>
+    <Box sx={{ p: 2, height: "100%" }}>
+      <Typography variant="subtitle1" fontWeight={700} gutterBottom>
         Filters
       </Typography>
+      <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
+        Narrow the transaction list. Charts use full dataset.
+      </Typography>
 
-      {/* Search */}
-      <TextField
-        label="Search"
-        size="small"
-        fullWidth
-        value={filters.search}
-        onChange={(e) => handleChange("search", e.target.value)}
-        sx={{ mb: 2 }}
-      />
+      <Stack spacing={2}>
+        <TextField
+          size="small"
+          fullWidth
+          label="Search"
+          placeholder="ID, category, note…"
+          value={filters.search}
+          onChange={set("search")}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" color="action" />
+              </InputAdornment>
+            ),
+          }}
+        />
 
-      {/* Category */}
-      <Typography variant="body2">Category</Typography>
-      <Select
-        fullWidth
-        size="small"
-        value={filters.category}
-        onChange={(e) => handleChange("category", e.target.value)}
-        sx={{ mb: 2 }}
-      >
-        <MenuItem value="">All</MenuItem>
-        <MenuItem value="Food">Food</MenuItem>
-        <MenuItem value="Travel">Travel</MenuItem>
-        <MenuItem value="Bills">Bills</MenuItem>
-        <MenuItem value="Shopping">Shopping</MenuItem>
-        <MenuItem value="Salary">Salary</MenuItem>
-        <MenuItem value="Freelance">Freelance</MenuItem>
-      </Select>
+        <Box>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Category
+          </Typography>
+          <Select fullWidth size="small" value={filters.category || ""} onChange={set("category")} displayEmpty>
+            <MenuItem value="">All categories</MenuItem>
+            {categories.map((c) => (
+              <MenuItem key={c} value={c}>
+                {c}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
 
-      {/* Type */}
-      <Typography variant="body2">Type</Typography>
-      <Select
-        fullWidth
-        size="small"
-        value={filters.type}
-        onChange={(e) => handleChange("type", e.target.value)}
-        sx={{ mb: 2 }}
-      >
-        <MenuItem value="">All</MenuItem>
-        <MenuItem value="income">Income</MenuItem>
-        <MenuItem value="expense">Expense</MenuItem>
-      </Select>
+        <Box>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Type
+          </Typography>
+          <Select fullWidth size="small" value={filters.type || ""} onChange={set("type")} displayEmpty>
+            <MenuItem value="">All types</MenuItem>
+            <MenuItem value="income">Income</MenuItem>
+            <MenuItem value="expense">Expense</MenuItem>
+          </Select>
+        </Box>
 
-      <Button variant="contained" fullWidth onClick={handleReset}>
-        Reset
-      </Button>
+        <Box>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Status
+          </Typography>
+          <Select fullWidth size="small" value={filters.status} onChange={set("status")}>
+            <MenuItem value="all">All</MenuItem>
+            <MenuItem value="success">Success</MenuItem>
+            <MenuItem value="failed">Failed</MenuItem>
+            <MenuItem value="pending">Pending</MenuItem>
+          </Select>
+        </Box>
+
+        <Box>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Date from
+          </Typography>
+          <TextField type="date" fullWidth size="small" value={filters.dateFrom} onChange={set("dateFrom")} InputLabelProps={{ shrink: true }} />
+        </Box>
+
+        <Box>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Date to
+          </Typography>
+          <TextField type="date" fullWidth size="small" value={filters.dateTo} onChange={set("dateTo")} InputLabelProps={{ shrink: true }} />
+        </Box>
+
+        <Button variant="outlined" fullWidth onClick={resetFilters}>
+          Reset filters
+        </Button>
+      </Stack>
     </Box>
   );
 }

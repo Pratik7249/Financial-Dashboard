@@ -1,257 +1,331 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-  Button,
-  IconButton,
-  Popover,
-  Box,
-  TextField,
-  Select,
-  MenuItem,
-  TablePagination,
-} from "@mui/material";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 
-function CustomTable() {
+const STATUS_STYLES = {
+  success: { bg: "var(--success-bg)", color: "var(--success)", label: "Success" },
+  failed: { bg: "var(--danger-bg)", color: "var(--danger)", label: "Failed" },
+  pending: { bg: "var(--warning-bg)", color: "var(--warning)", label: "Pending" },
+};
+
+const TYPE_STYLES = {
+  income: { color: "var(--success)" },
+  expense: { color: "var(--danger)" },
+};
+
+function FilterIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
+      <path d="M9 6V4h6v2"/>
+    </svg>
+  );
+}
+
+const inputStyle = {
+  background: "var(--bg-base)", border: "1px solid var(--border)",
+  borderRadius: "var(--radius-sm)", padding: "7px 10px",
+  fontSize: "12px", color: "var(--text-primary)", outline: "none",
+  fontFamily: "var(--font-body)", width: "100%",
+};
+
+const selectStyle = {
+  ...inputStyle, cursor: "pointer", width: "auto", minWidth: "120px",
+};
+
+export default function CustomTable() {
   const { transactions, role, setTransactions } = useAppContext();
 
-  const [localFilters, setLocalFilters] = useState({
-    search: "",
-    category: "",
-    type: "",
-  });
-
-  const [filters, setFilters] = useState(localFilters);
-
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  // 🔹 Pagination state
+  const [filters, setFilters] = useState({ search: "", category: "", type: "" });
+  const [localFilters, setLocalFilters] = useState({ search: "", category: "", type: "" });
+  const [showFilter, setShowFilter] = useState(false);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(7);
+  const [deletingId, setDeletingId] = useState(null);
 
-  const handleOpen = (e) => setAnchorEl(e.currentTarget);
-  const handleClose = () => setAnchorEl(null);
-
-  const handleApply = () => {
-    setFilters(localFilters);
-    setPage(0); // reset to first page on filter apply
-    handleClose();
+  const handleApply = () => { setFilters(localFilters); setPage(0); setShowFilter(false); };
+  const handleReset = () => {
+    const empty = { search: "", category: "", type: "" };
+    setLocalFilters(empty); setFilters(empty); setPage(0); setShowFilter(false);
   };
 
   const handleDelete = (id) => {
     if (role !== "admin") return;
-    const updated = transactions.filter((t) => t.id !== id);
-    setTransactions(updated);
+    setDeletingId(id);
+    setTimeout(() => {
+      setTransactions(transactions.filter(t => t.id !== id));
+      setDeletingId(null);
+    }, 300);
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const filteredData = transactions.filter((t) => {
-    return (
-      (filters.search === "" ||
-        t.id.toLowerCase().includes(filters.search.toLowerCase()) ||
-        t.category.toLowerCase().includes(filters.search.toLowerCase())) &&
-      (filters.category === "" || t.category === filters.category) &&
-      (filters.type === "" || t.type === filters.type)
-    );
-  });
-
-  // 🔹 Paginated slice
-  const paginatedData = filteredData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
+  const filteredData = transactions.filter(t =>
+    (filters.search === "" || t.id.toLowerCase().includes(filters.search.toLowerCase()) || t.category.toLowerCase().includes(filters.search.toLowerCase())) &&
+    (filters.category === "" || t.category === filters.category) &&
+    (filters.type === "" || t.type === filters.type)
   );
 
-  // 🔹 Column widths based on role
-  const colWidths =
-    role === "admin"
-      ? {
-          id: "18%",
-          date: "20%",
-          category: "14%",
-          type: "18%",
-          amount: "16%",
-          actions: "17%",
-        }
-      : {
-          id: "20%",
-          date: "20%",
-          category: "20%",
-          type: "15%",
-          amount: "15%",
-        };
+  const paginatedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  const activeFiltersCount = [filters.search, filters.category, filters.type].filter(Boolean).length;
 
   return (
-    <Paper
-      sx={{
-        p: 2,
-        borderRadius: 3,
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        height: "80vh",       // ⬅️ fixed height so pagination stays visible
-      }}
-    >
+    <div style={{
+      background: "var(--bg-surface)", border: "1px solid var(--border)",
+      borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-sm)",
+      display: "flex", flexDirection: "column", height: "100%", overflow: "hidden",
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: "16px 20px", borderBottom: "1px solid var(--border)",
+        display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px",
+        flexWrap: "wrap",
+      }}>
+        <div>
+          <h3 style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>Transactions</h3>
+          <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>{filteredData.length} records</p>
+        </div>
 
-      {/* 🔹 Header */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, flexShrink: 0 }}>
-        <Typography variant="h6">Transactions</Typography>
-        <IconButton onClick={handleOpen}>
-          <FilterListIcon />
-        </IconButton>
-      </Box>
-
-      {/* 🔹 Popover */}
-      <Popover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-      >
-        <Box
-          sx={{
-            p: 2,
-            width: 250,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
-        >
-          <TextField
-            label="Search"
-            size="small"
-            value={localFilters.search}
-            onChange={(e) =>
-              setLocalFilters({ ...localFilters, search: e.target.value })
-            }
-          />
-
-          <Select
-            size="small"
-            value={localFilters.category}
-            onChange={(e) =>
-              setLocalFilters({ ...localFilters, category: e.target.value })
-            }
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={() => setShowFilter(!showFilter)}
+            style={{
+              display: "flex", alignItems: "center", gap: "6px",
+              padding: "7px 12px", borderRadius: "var(--radius-sm)",
+              border: "1px solid var(--border)",
+              background: activeFiltersCount > 0 ? "var(--accent-bg)" : "var(--bg-base)",
+              color: activeFiltersCount > 0 ? "var(--accent)" : "var(--text-secondary)",
+              fontSize: "12px", fontWeight: 500, cursor: "pointer",
+              fontFamily: "var(--font-body)", transition: "all 0.15s",
+            }}
           >
-            <MenuItem value="">All Categories</MenuItem>
-            <MenuItem value="Food">Food</MenuItem>
-            <MenuItem value="Travel">Travel</MenuItem>
-            <MenuItem value="Bills">Bills</MenuItem>
-            <MenuItem value="Shopping">Shopping</MenuItem>
-            <MenuItem value="Salary">Salary</MenuItem>
-            <MenuItem value="Freelance">Freelance</MenuItem>
-          </Select>
-
-          <Select
-            size="small"
-            value={localFilters.type}
-            onChange={(e) =>
-              setLocalFilters({ ...localFilters, type: e.target.value })
-            }
-          >
-            <MenuItem value="">All Types</MenuItem>
-            <MenuItem value="income">Income</MenuItem>
-            <MenuItem value="expense">Expense</MenuItem>
-          </Select>
-
-          <Button variant="contained" onClick={handleApply}>
-            Apply
-          </Button>
-        </Box>
-      </Popover>
-
-      {/* 🔹 Scrollable Table Area */}
-      <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
-        <Table sx={{ tableLayout: "fixed", width: "100%" }} stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ width: colWidths.id }}>ID</TableCell>
-              <TableCell sx={{ width: colWidths.date }}>Date</TableCell>
-              <TableCell sx={{ width: colWidths.category }}>Category</TableCell>
-              <TableCell sx={{ width: colWidths.type }}>Type</TableCell>
-              <TableCell sx={{ width: colWidths.amount }}>Amount</TableCell>
-              {role === "admin" && (
-                <TableCell sx={{ width: colWidths.actions }}>Actions</TableCell>
-              )}
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {paginatedData.length > 0 ? (
-              paginatedData.map((t) => (
-                <TableRow key={t.id}>
-                  <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {t.id}
-                  </TableCell>
-                  <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {t.date}
-                  </TableCell>
-                  <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {t.category}
-                  </TableCell>
-                  <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {t.type}
-                  </TableCell>
-                  <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    ₹ {t.amount}
-                  </TableCell>
-                  {role === "admin" && (
-                    <TableCell>
-                      <Button
-                        color="error"
-                        size="small"
-                        onClick={() => handleDelete(t.id)}
-                      >
-                        Delete
-                      </Button>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={role === "admin" ? 6 : 5} align="center">
-                  No transactions found 😕
-                </TableCell>
-              </TableRow>
+            <FilterIcon /> Filters
+            {activeFiltersCount > 0 && (
+              <span style={{
+                background: "var(--accent)", color: "#fff", borderRadius: "99px",
+                fontSize: "10px", padding: "1px 5px", fontWeight: 700,
+              }}>{activeFiltersCount}</span>
             )}
-          </TableBody>
-        </Table>
-      </Box>
+          </button>
 
-      {/* 🔹 Pagination — always pinned at bottom */}
-      <Box sx={{ flexShrink: 0, borderTop: "1px solid #e0e0e0" }}>
-        <TablePagination
-          component="div"
-          count={filteredData.length}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={[5, 7, 10]}
-        />
-      </Box>
+          {/* Filter dropdown */}
+          {showFilter && (
+            <div style={{
+              position: "absolute", right: 0, top: "calc(100% + 6px)", zIndex: 50,
+              background: "var(--bg-surface)", border: "1px solid var(--border)",
+              borderRadius: "var(--radius-lg)", padding: "16px", width: "240px",
+              boxShadow: "var(--shadow-lg)",
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)" }}>Filter</span>
+                <button onClick={() => setShowFilter(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex" }}>
+                  <CloseIcon />
+                </button>
+              </div>
 
-    </Paper>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <input placeholder="Search ID or category…" value={localFilters.search}
+                  onChange={e => setLocalFilters({ ...localFilters, search: e.target.value })}
+                  style={inputStyle} />
+
+                <select value={localFilters.category}
+                  onChange={e => setLocalFilters({ ...localFilters, category: e.target.value })}
+                  style={inputStyle}>
+                  <option value="">All Categories</option>
+                  {["Food", "Travel", "Bills", "Shopping", "Salary", "Freelance"].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+
+                <select value={localFilters.type}
+                  onChange={e => setLocalFilters({ ...localFilters, type: e.target.value })}
+                  style={inputStyle}>
+                  <option value="">All Types</option>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button onClick={handleReset} style={{
+                    flex: 1, padding: "7px", border: "1px solid var(--border)",
+                    borderRadius: "var(--radius-sm)", background: "none",
+                    color: "var(--text-secondary)", fontSize: "12px", cursor: "pointer", fontFamily: "var(--font-body)",
+                  }}>
+                    Reset
+                  </button>
+                  <button onClick={handleApply} style={{
+                    flex: 1, padding: "7px", border: "none",
+                    borderRadius: "var(--radius-sm)", background: "var(--accent)",
+                    color: "#fff", fontSize: "12px", cursor: "pointer", fontWeight: 600,
+                    fontFamily: "var(--font-body)",
+                  }}>
+                    Apply
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Table */}
+      <div style={{ flex: 1, overflowY: "auto", overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", minWidth: "480px" }}>
+          <thead>
+            <tr style={{ background: "var(--bg-base)", position: "sticky", top: 0, zIndex: 1 }}>
+              {["ID", "Date", "Category", "Type", "Amount", "Status", ...(role === "admin" ? ["Action"] : [])].map(h => (
+                <th key={h} style={{
+                  padding: "10px 14px", textAlign: "left",
+                  fontSize: "10px", fontWeight: 600, color: "var(--text-muted)",
+                  textTransform: "uppercase", letterSpacing: "0.6px",
+                  borderBottom: "1px solid var(--border)",
+                  whiteSpace: "nowrap",
+                }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedData.length > 0 ? paginatedData.map((t, idx) => {
+              const statusStyle = STATUS_STYLES[t.status] || STATUS_STYLES.pending;
+              const typeStyle = TYPE_STYLES[t.type] || {};
+              const isDeleting = deletingId === t.id;
+
+              return (
+                <tr key={t.id} style={{
+                  borderBottom: "1px solid var(--border-light)",
+                  transition: "background 0.15s, opacity 0.3s",
+                  opacity: isDeleting ? 0 : 1,
+                  background: "transparent",
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = "var(--bg-base)"}
+                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                >
+                  <td style={{ padding: "11px 14px", color: "var(--text-secondary)", fontFamily: "monospace", fontSize: "12px", whiteSpace: "nowrap" }}>
+                    {t.id}
+                  </td>
+                  <td style={{ padding: "11px 14px", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                    {t.date}
+                  </td>
+                  <td style={{ padding: "11px 14px", color: "var(--text-primary)", fontWeight: 500, whiteSpace: "nowrap" }}>
+                    {t.category}
+                  </td>
+                  <td style={{ padding: "11px 14px", whiteSpace: "nowrap" }}>
+                    <span style={{
+                      fontSize: "11px", fontWeight: 600,
+                      color: typeStyle.color, textTransform: "capitalize",
+                    }}>
+                      {t.type === "income" ? "↑" : "↓"} {t.type}
+                    </span>
+                  </td>
+                  <td style={{ padding: "11px 14px", fontWeight: 700, color: typeStyle.color, whiteSpace: "nowrap" }}>
+                    {t.type === "income" ? "+" : "-"}₹{t.amount.toLocaleString("en-IN")}
+                  </td>
+                  <td style={{ padding: "11px 14px", whiteSpace: "nowrap" }}>
+                    <span style={{
+                      fontSize: "11px", fontWeight: 600, padding: "3px 8px", borderRadius: "99px",
+                      background: statusStyle.bg, color: statusStyle.color,
+                    }}>
+                      {statusStyle.label}
+                    </span>
+                  </td>
+                  {role === "admin" && (
+                    <td style={{ padding: "11px 14px" }}>
+                      <button
+                        onClick={() => handleDelete(t.id)}
+                        style={{
+                          display: "flex", alignItems: "center", gap: "4px",
+                          padding: "5px 10px", borderRadius: "var(--radius-sm)",
+                          border: "1px solid var(--danger-bg)",
+                          background: "var(--danger-bg)", color: "var(--danger)",
+                          fontSize: "11px", fontWeight: 600, cursor: "pointer",
+                          fontFamily: "var(--font-body)", transition: "all 0.15s",
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "var(--danger)"; e.currentTarget.style.color = "#fff"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "var(--danger-bg)"; e.currentTarget.style.color = "var(--danger)"; }}
+                      >
+                        <TrashIcon /> Delete
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              );
+            }) : (
+              <tr>
+                <td colSpan={role === "admin" ? 7 : 6} style={{
+                  padding: "40px", textAlign: "center",
+                  color: "var(--text-muted)", fontSize: "13px",
+                }}>
+                  <div style={{ fontSize: "28px", marginBottom: "8px" }}>🔍</div>
+                  No transactions match your filters
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div style={{
+        padding: "12px 20px", borderTop: "1px solid var(--border)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        gap: "10px", flexWrap: "wrap",
+        background: "var(--bg-surface)",
+      }}>
+        <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+          Showing {page * rowsPerPage + 1}–{Math.min((page + 1) * rowsPerPage, filteredData.length)} of {filteredData.length}
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <select value={rowsPerPage} onChange={e => { setRowsPerPage(Number(e.target.value)); setPage(0); }}
+            style={{ ...selectStyle, minWidth: "auto", padding: "5px 8px" }}>
+            {[5, 7, 10, 15].map(n => <option key={n} value={n}>{n} / page</option>)}
+          </select>
+
+          <button disabled={page === 0} onClick={() => setPage(p => p - 1)}
+            style={{
+              padding: "5px 10px", borderRadius: "var(--radius-sm)",
+              border: "1px solid var(--border)", background: "none",
+              color: page === 0 ? "var(--text-muted)" : "var(--text-primary)",
+              cursor: page === 0 ? "not-allowed" : "pointer", fontSize: "13px",
+            }}>‹</button>
+
+          {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+            const p = Math.max(0, Math.min(page - 2, totalPages - 5)) + i;
+            return (
+              <button key={p} onClick={() => setPage(p)} style={{
+                padding: "5px 10px", borderRadius: "var(--radius-sm)", fontSize: "13px",
+                border: "1px solid", cursor: "pointer",
+                borderColor: p === page ? "var(--accent)" : "var(--border)",
+                background: p === page ? "var(--accent)" : "none",
+                color: p === page ? "#fff" : "var(--text-primary)",
+                fontWeight: p === page ? 600 : 400,
+              }}>{p + 1}</button>
+            );
+          })}
+
+          <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}
+            style={{
+              padding: "5px 10px", borderRadius: "var(--radius-sm)",
+              border: "1px solid var(--border)", background: "none",
+              color: page >= totalPages - 1 ? "var(--text-muted)" : "var(--text-primary)",
+              cursor: page >= totalPages - 1 ? "not-allowed" : "pointer", fontSize: "13px",
+            }}>›</button>
+        </div>
+      </div>
+    </div>
   );
 }
-
-export default CustomTable;
