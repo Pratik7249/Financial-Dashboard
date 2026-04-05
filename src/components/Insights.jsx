@@ -38,6 +38,7 @@ function Insights() {
 
   let observation = "";
   let suggestion = "";
+  let suggestion2 = "";
   const percent = ((maxAmount / totalExpense) * 100).toFixed(0);
 
   if (totalExpense > totalIncome) {
@@ -48,7 +49,8 @@ function Insights() {
 
   // Suggestion based on highest category
   if (highestCategory !== "N/A") {
-    suggestion = `${highestCategory} accounts for ${percent}% of your spending. Consider proper usage of it.`;
+    suggestion = `${highestCategory} accounts for ${percent}% of your spending.`;
+    suggestion2 = `Try to reduce unnecessary expenses in ${highestCategory} to save more.`;
   }
 
   return (
@@ -72,7 +74,7 @@ function Insights() {
               </Typography>
 
               <Typography variant="body2" sx={{ mt: 1 }}>
-                {suggestion}
+                {suggestion}<br />{suggestion2}
               </Typography>
             </CardContent>
           </Card>

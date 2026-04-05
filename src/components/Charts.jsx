@@ -73,7 +73,7 @@ function Charts() {
                 Spending by Category
               </Typography>
 
-              <ResponsiveContainer height={350} width={400}>
+              <ResponsiveContainer height={350} width={350}>
                 <PieChart>
                   <Pie
                     data={pieData}
