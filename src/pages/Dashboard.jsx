@@ -4,6 +4,7 @@ import Filters from "../components/Filters";
 import CustomTable from "../components/Table";
 import OverviewCards from "../components/OverviewCards";
 import Charts from "../components/Charts";
+import Insights from "../components/Insights";
 
 function Dashboard() {
   return (
@@ -20,6 +21,7 @@ function Dashboard() {
         {/* Charts Section */}
         <Box sx={{ mt: 3 }}>
           <Charts />
+          <Insights />
         </Box>
 
         {/* Bottom Section */}
