@@ -13,6 +13,7 @@ import {
   TextField,
   Select,
   MenuItem,
+  TablePagination,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { useState } from "react";
@@ -21,7 +22,6 @@ import { useAppContext } from "../context/AppContext";
 function CustomTable() {
   const { transactions, role, setTransactions } = useAppContext();
 
-  // 🔹 Local filter state (inside popup)
   const [localFilters, setLocalFilters] = useState({
     search: "",
     category: "",
@@ -30,28 +30,37 @@ function CustomTable() {
 
   const [filters, setFilters] = useState(localFilters);
 
-  // 🔹 Popover control
   const [anchorEl, setAnchorEl] = useState(null);
-
   const open = Boolean(anchorEl);
+
+  // 🔹 Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleOpen = (e) => setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  // 🔹 Apply Filters
   const handleApply = () => {
     setFilters(localFilters);
+    setPage(0); // reset to first page on filter apply
     handleClose();
   };
 
-  // 🔹 Delete
   const handleDelete = (id) => {
     if (role !== "admin") return;
     const updated = transactions.filter((t) => t.id !== id);
     setTransactions(updated);
   };
 
-  // 🔹 Filter logic
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const filteredData = transactions.filter((t) => {
     return (
       (filters.search === "" ||
@@ -62,13 +71,46 @@ function CustomTable() {
     );
   });
 
-  return (
-    <Paper sx={{ p: 2, borderRadius: 3 }}>
-      
-      {/* 🔹 Header */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Typography variant="h6">Transactions</Typography>
+  // 🔹 Paginated slice
+  const paginatedData = filteredData.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
+  // 🔹 Column widths based on role
+  const colWidths =
+    role === "admin"
+      ? {
+          id: "18%",
+          date: "22%",
+          category: "20%",
+          type: "15%",
+          amount: "13%",
+          actions: "12%",
+        }
+      : {
+          id: "20%",
+          date: "25%",
+          category: "25%",
+          type: "15%",
+          amount: "15%",
+        };
+
+  return (
+    <Paper
+      sx={{
+        p: 2,
+        borderRadius: 3,
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        height: "80vh",       // ⬅️ fixed height so pagination stays visible
+      }}
+    >
+
+      {/* 🔹 Header */}
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, flexShrink: 0 }}>
+        <Typography variant="h6">Transactions</Typography>
         <IconButton onClick={handleOpen}>
           <FilterListIcon />
         </IconButton>
@@ -84,8 +126,15 @@ function CustomTable() {
           horizontal: "right",
         }}
       >
-        <Box sx={{ p: 2, width: 250, display: "flex", flexDirection: "column", gap: 2 }}>
-          
+        <Box
+          sx={{
+            p: 2,
+            width: 250,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
           <TextField
             label="Search"
             size="small"
@@ -126,55 +175,81 @@ function CustomTable() {
           <Button variant="contained" onClick={handleApply}>
             Apply
           </Button>
-
         </Box>
       </Popover>
 
-      {/* 🔹 Table */}
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Date</TableCell>
-            <TableCell>Category</TableCell>
-            <TableCell>Type</TableCell>
-            <TableCell>Amount</TableCell>
-            {role === "admin" && <TableCell>Actions</TableCell>}
-          </TableRow>
-        </TableHead>
-
-        <TableBody>
-          {filteredData.length > 0 ? (
-            filteredData.map((t) => (
-              <TableRow key={t.id}>
-                <TableCell>{t.id}</TableCell>
-                <TableCell>{t.date}</TableCell>
-                <TableCell>{t.category}</TableCell>
-                <TableCell>{t.type}</TableCell>
-                <TableCell>₹ {t.amount}</TableCell>
-
-                {role === "admin" && (
-                  <TableCell>
-                    <Button
-                      color="error"
-                      size="small"
-                      onClick={() => handleDelete(t.id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                )}
-              </TableRow>
-            ))
-          ) : (
+      {/* 🔹 Scrollable Table Area */}
+      <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
+        <Table sx={{ tableLayout: "fixed", width: "100%" }} stickyHeader>
+          <TableHead>
             <TableRow>
-              <TableCell colSpan={6} align="center">
-                No transactions found 😕
-              </TableCell>
+              <TableCell sx={{ width: colWidths.id }}>ID</TableCell>
+              <TableCell sx={{ width: colWidths.date }}>Date</TableCell>
+              <TableCell sx={{ width: colWidths.category }}>Category</TableCell>
+              <TableCell sx={{ width: colWidths.type }}>Type</TableCell>
+              <TableCell sx={{ width: colWidths.amount }}>Amount</TableCell>
+              {role === "admin" && (
+                <TableCell sx={{ width: colWidths.actions }}>Actions</TableCell>
+              )}
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHead>
+
+          <TableBody>
+            {paginatedData.length > 0 ? (
+              paginatedData.map((t) => (
+                <TableRow key={t.id}>
+                  <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {t.id}
+                  </TableCell>
+                  <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {t.date}
+                  </TableCell>
+                  <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {t.category}
+                  </TableCell>
+                  <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {t.type}
+                  </TableCell>
+                  <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    ₹ {t.amount}
+                  </TableCell>
+                  {role === "admin" && (
+                    <TableCell>
+                      <Button
+                        color="error"
+                        size="small"
+                        onClick={() => handleDelete(t.id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={role === "admin" ? 6 : 5} align="center">
+                  No transactions found 😕
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </Box>
+
+      {/* 🔹 Pagination — always pinned at bottom */}
+      <Box sx={{ flexShrink: 0, borderTop: "1px solid #e0e0e0" }}>
+        <TablePagination
+          component="div"
+          count={filteredData.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[5, 7, 10]}
+        />
+      </Box>
+
     </Paper>
   );
 }
