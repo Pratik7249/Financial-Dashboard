@@ -21,7 +21,6 @@ function Dashboard() {
             flexDirection: { xs: "column", md: "row" },
           }}
         >
-          {/* LEFT: Charts + Cards + Insights */}
           <Box
             sx={{
               flex: "0 0 58%",
@@ -33,12 +32,11 @@ function Dashboard() {
           >
             <Charts />
 
-            {/* ⬅️ Replace Grid with simple flex row */}
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <Box sx={{ flex: 2, minWidth: 10 }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Box sx={{ flex: 7, minWidth: 0 }}>
                 <OverviewCards />
               </Box>
-              <Box sx={{ flex: 1, minWidth: 10 }}>
+              <Box sx={{ flex: 6, minWidth: 0 }}>
                 <Insights />
               </Box>
             </Box>
