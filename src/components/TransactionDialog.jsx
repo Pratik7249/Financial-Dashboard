@@ -34,7 +34,7 @@ function formFromInitial(initial) {
   };
 }
 
-/** Mounted only when dialog is open; `key` on parent resets state for add vs edit. */
+
 function TransactionDialogForm({ initial, onClose, onSave }) {
   const [form, setForm] = useState(() => formFromInitial(initial));
 

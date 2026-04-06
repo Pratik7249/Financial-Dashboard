@@ -89,7 +89,7 @@ export default function CustomTable() {
       borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-sm)",
       display: "flex", flexDirection: "column", height: "100%", overflow: "hidden",
     }}>
-      {/* Header */}
+      
       <div style={{
         padding: "16px 20px", borderBottom: "1px solid var(--border)",
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px",
@@ -122,7 +122,7 @@ export default function CustomTable() {
             )}
           </button>
 
-          {/* Filter dropdown */}
+
           {showFilter && (
             <div style={{
               position: "absolute", right: 0, top: "calc(100% + 6px)", zIndex: 50,
@@ -182,7 +182,7 @@ export default function CustomTable() {
         </div>
       </div>
 
-      {/* Table */}
+    
       <div style={{ flex: 1, overflowY: "auto", overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", minWidth: "480px" }}>
           <thead>
@@ -278,7 +278,7 @@ export default function CustomTable() {
         </table>
       </div>
 
-      {/* Pagination */}
+  
       <div style={{
         padding: "12px 20px", borderTop: "1px solid var(--border)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
