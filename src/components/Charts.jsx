@@ -61,7 +61,7 @@ export default function Charts() {
 
   return (
     <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-      {/* Line Chart */}
+   
       <div style={cardStyle}>
         <h3 style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
           Transaction Trend
@@ -79,7 +79,7 @@ export default function Charts() {
         </ResponsiveContainer>
       </div>
 
-      {/* Pie Chart */}
+
       <div style={{ ...cardStyle, minWidth: "260px", maxWidth: "340px" }}>
         <h3 style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
           Spending by Category

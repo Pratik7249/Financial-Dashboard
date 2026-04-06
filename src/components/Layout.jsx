@@ -9,7 +9,7 @@ export default function Layout({ children }) {
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg-base)" }}>
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
-      {/* Mobile overlay */}
+     
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
@@ -20,7 +20,7 @@ export default function Layout({ children }) {
         />
       )}
 
-      {/* Main area */}
+  
       <div className="layout-main">
         <Navbar setOpen={setSidebarOpen} />
         <main style={{ flex: 1, padding: "20px", overflowX: "hidden" }}>

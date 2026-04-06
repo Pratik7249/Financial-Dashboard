@@ -46,7 +46,7 @@ export default function Sidebar({ open, setOpen }) {
         }}
         className={`sidebar-root${open ? " sidebar-open" : ""}`}
       >
-        {/* Logo */}
+  
         <div style={{
           padding: "22px 20px 18px",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
@@ -72,7 +72,6 @@ export default function Sidebar({ open, setOpen }) {
           </div>
         </div>
 
-        {/* Nav */}
         <nav style={{ padding: "20px 12px", flex: 1 }}>
           <div style={{
             fontSize: "9px", fontWeight: 700, color: "rgba(255,255,255,0.2)",
@@ -115,7 +114,7 @@ export default function Sidebar({ open, setOpen }) {
           })}
         </nav>
 
-        {/* Footer */}
+
         <div style={{ padding: "16px 20px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.15)", textAlign: "center" }}>
             © 2026 FinTrack v1.0

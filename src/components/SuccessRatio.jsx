@@ -50,7 +50,6 @@ export default function SuccessRatio() {
         {total} total transactions
       </p>
 
-      {/* Stat badges */}
       <div style={{ display: "flex", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
         {data.map(item => (
           <div key={item.name} style={{

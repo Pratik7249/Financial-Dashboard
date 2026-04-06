@@ -75,7 +75,7 @@ export default function ChartsDetailed() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      {/* Line Chart with date filter */}
+      
       <div style={cardStyle}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", marginBottom: "16px" }}>
           <div>
@@ -112,7 +112,7 @@ export default function ChartsDetailed() {
         </ResponsiveContainer>
       </div>
 
-      {/* Pie Chart */}
+     
       <div style={cardStyle}>
         <h3 style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
           Spending by Category

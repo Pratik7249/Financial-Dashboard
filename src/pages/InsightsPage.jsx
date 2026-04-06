@@ -22,7 +22,7 @@ export default function InsightsPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }} className="animate-in">
-      {/* Page header */}
+    
       <div style={{
         background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)",
         borderRadius: "var(--radius-xl)", padding: "24px 28px", color: "#fff",
@@ -39,10 +39,10 @@ export default function InsightsPage() {
         <div style={{ fontSize: "36px" }}>📊</div>
       </div>
 
-      {/* Overview cards */}
+  
       <OverviewCards />
 
-      {/* Two-column grid */}
+  
       <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
         <div style={{ flex: "1 1 320px", minWidth: 0 }}>
           <Insights />
@@ -52,7 +52,7 @@ export default function InsightsPage() {
         </div>
       </div>
 
-      {/* Full-width detailed charts */}
+    
       <ChartsDetailed />
     </div>
   );

@@ -55,7 +55,7 @@ export function AppProvider({ children }) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch {
-      /* ignore quota */
+      
     }
   }, [transactions, role, colorMode]);
 
